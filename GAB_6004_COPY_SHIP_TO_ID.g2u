@@ -1,0 +1,171 @@
+﻿Program.Sub.ScreenSU.Start
+Gui.F_CopyShipID..Create(BaseForm)
+Gui.F_CopyShipID..Caption("Copy Ship ID (6004)")
+Gui.F_CopyShipID..Size(10200,9480)
+Gui.F_CopyShipID..MinX(0)
+Gui.F_CopyShipID..MinY(0)
+Gui.F_CopyShipID..Position(0,0)
+Gui.F_CopyShipID..FontSize(9)
+Gui.F_CopyShipID..BackColor(-2147483633)
+Gui.F_CopyShipID..MousePointer(0)
+Gui.F_CopyShipID..Event(UnLoad,Unload)
+Gui.F_CopyShipID..AlwaysOnTop(False)
+Gui.F_CopyShipID..FontName("Tahoma")
+Gui.F_CopyShipID..ControlBox(True)
+Gui.F_CopyShipID..MaxButton(True)
+Gui.F_CopyShipID..MinButton(True)
+Gui.F_CopyShipID..Moveable(True)
+Gui.F_CopyShipID..Sizeable(True)
+Gui.F_CopyShipID..ShowInTaskBar(True)
+Gui.F_CopyShipID..TitleBar(True)
+Gui.F_CopyShipID.GsGCTarget.Create(GsGridControl)
+Gui.F_CopyShipID.GsGCTarget.Enabled(True)
+Gui.F_CopyShipID.GsGCTarget.Visible(True)
+Gui.F_CopyShipID.GsGCTarget.Zorder(0)
+Gui.F_CopyShipID.GsGCTarget.Size(9840,8130)
+Gui.F_CopyShipID.GsGCTarget.Position(180,735)
+Gui.F_CopyShipID.GsGCTarget.Event(RowCellClick,GSGCTarget_RowCellClick)
+Gui.F_CopyShipID.cmdCopy.Create(Button)
+Gui.F_CopyShipID.cmdCopy.Enabled(True)
+Gui.F_CopyShipID.cmdCopy.Visible(True)
+Gui.F_CopyShipID.cmdCopy.Zorder(0)
+Gui.F_CopyShipID.cmdCopy.Size(1125,345)
+Gui.F_CopyShipID.cmdCopy.Position(210,225)
+Gui.F_CopyShipID.cmdCopy.Caption("COPY")
+Gui.F_CopyShipID.cmdCopy.FontName("Tahoma")
+Gui.F_CopyShipID.cmdCopy.FontSize(8.25)
+Gui.F_CopyShipID.cmdCopy.Event(Click,cmdCopy_Click)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Program.Sub.Preflight.End
+
+Program.Sub.UnLoad.Start
+	F.ODBC.Connection!conx.Close
+	F.Intrinsic.Control.End
+Program.Sub.UnLoad.End
+
+Program.Sub.Main.Start
+V.Local.sCustomer.Declare
+V.Local.sShipID.Declare
+v.Local.sData.Declare
+v.Local.sSQL.Declare
+v.Local.i1.Declare
+
+F.ODBC.Connection!conx.OpenCompanyConnection
+
+F.Intrinsic.Control.If(V.Caller.Hook,=,14400)
+	V.Passed.000019.Set("Copy ShipID")
+F.Intrinsic.Control.ElseIf(V.Caller.Hook,=,14401)
+	V.Local.sCustomer.Set(V.Passed.000001)
+
+	F.Intrinsic.String.Build("SELECT Cast(0 As Bit) As Checklist, Customer, Name_Customer FROM V_CUSTOMER_MASTER WHERE CUSTOMER <> '{0}'",V.Local.sCustomer,v.Local.sSQL)
+	F.Data.DataTable.CreateFromSQL("dtTarget","conx",v.Local.sSQL,True)
+	
+	Gui.F_CopyShipID.GsGCTarget.AddGridviewFromDataTable("gvTarget","dtTarget")
+	Gui.F_CopyShipID.GsGCTarget.SetGridViewProperty("gvTarget","MultiSelect",True)
+	Gui.F_CopyShipID.GsGCTarget.SetGridViewProperty("gvTarget","OptionBehaviorEditable",True)
+	Gui.F_CopyShipID.GsGCTarget.SetGridViewProperty("gvTarget","AllowSort",True)
+	Gui.F_CopyShipID.GsGCTarget.SetGridViewProperty("gvTarget","AllowFilter",True)
+	Gui.F_CopyShipID.GsGCTarget.SetGridViewProperty("gvTarget","OptionsDetailShowDetailTabs",False)
+	Gui.F_CopyShipID.GsGCTarget.SetGridViewProperty("gvTarget","OptionsFindAlwaysVisible",True)
+	
+	Gui.F_CopyShipID.GsGCTarget.SetColumnProperty("gvTarget","Checklist","ShowCaption",False)
+	
+	Gui.F_CopyShipID.GsGCTarget.SetColumnProperty("gvTarget","Customer","Caption","Customer")
+	Gui.F_CopyShipID.GsGCTarget.SetColumnProperty("gvTarget","Name_Customer","Caption","Name")
+	
+	Gui.F_CopyShipID.GsGCTarget.SetColumnProperty("gvTarget","Checklist","AllowEdit",False)
+	Gui.F_CopyShipID.GsGCTarget.SetColumnProperty("gvTarget","Customer","AllowEdit",False)
+	Gui.F_CopyShipID.GsGCTarget.SetColumnProperty("gvTarget","Name_Customer","AllowEdit",False)
+	
+	Gui.F_CopyShipID.GsGCTarget.SetColumnProperty("gvTarget","Checklist","MinWidth","25")
+	Gui.F_CopyShipID.GsGCTarget.SetColumnProperty("gvTarget","Customer","MinWidth","100")
+	Gui.F_CopyShipID.GsGCTarget.SetColumnProperty("gvTarget","Name_Customer","MinWidth","200")
+	
+	Gui.F_CopyShipID.GsGCTarget.SetColumnProperty("gvTarget","Customer","HeaderHAlignment","Center")
+	Gui.F_CopyShipID.GsGCTarget.SetColumnProperty("gvTarget","Name_Customer","HeaderHAlignment","Center")
+	
+	Gui.F_CopyShipID.GsGCTarget.SetColumnProperty("gvTarget","Customer","CellHAlignment","Center")
+	Gui.F_CopyShipID.GsGCTarget.SetColumnProperty("gvTarget","Name_Customer","CellHAlignment","Center")
+	
+	Gui.F_CopyShipID.GsGCTarget.MainView("gvTarget")
+	Gui.F_CopyShipID..Show
+F.Intrinsic.Control.EndIf
+Program.Sub.Main.End
+
+Program.Sub.GSGCTarget_RowCellClick.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	V.Local.iRet.Declare
+	V.Local.sType.Declare
+	V.Local.sAPPROVE.Declare
+	V.Local.fZERO.Declare
+
+		F.Intrinsic.Control.SelectCase(V.Args.column)
+			F.Intrinsic.Control.Case("Checklist")
+				F.Intrinsic.Control.If(V.DataTable.dtTarget(V.Args.RowIndex).Checklist!FieldVal,=,False)
+					F.Data.DataTable.SetValue("dtTarget",V.Args.RowIndex,"Checklist",TRUE)
+				F.Intrinsic.Control.ElseIf(V.DataTable.dtTarget(V.Args.RowIndex).Checklist!FieldVal,=,TRUE)
+					F.Data.DataTable.SetValue("dtTarget",V.Args.RowIndex,"Checklist",FALSE)		
+				F.Intrinsic.Control.EndIf
+		F.Intrinsic.Control.EndSelect
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: GAB_6004_Copy_Ship_to_ID.g2u{0}{0}Subroutine: {1}{0}Error Occurred {2} with description {3}.",V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End 
+	F.Intrinsic.Control.EndTry
+Program.Sub.GSGCTarget_RowCellClick.End
+
+Program.Sub.cmdCopy_Click.Start
+F.Intrinsic.Control.BlockEvents
+V.Local.iID.Declare
+V.Local.sID.Declare
+V.Local.sSql.Declare
+V.Local.i1.Declare
+V.Local.i2.Declare
+V.Local.sCustomer.Declare
+V.Local.sShipID.Declare
+V.Local.iFlag.Declare
+
+V.Local.sCustomer.Set(V.Passed.000001)
+V.Local.sShipID.Set(V.Passed.000007)
+
+F.Intrinsic.String.Build("SELECT * FROM OE_MULTI_SHIP WHERE CUSTOMER = '{0}' and SHIP_SEQ = '{1}'",V.Local.sCustomer,V.Local.sShipID,v.Local.sSQL)
+F.Data.DataTable.CreateFromSQL("dtShipID","conx",V.Local.sSQL)
+
+F.Intrinsic.Control.If(V.DataTable.dtShipID.RowCount,>,0)
+	F.Intrinsic.Control.For(V.Local.i1,0,V.DataTable.dtShipID.RowCount--,1)
+		F.Intrinsic.Control.For(V.Local.i2,0,V.DataTable.dtTarget.RowCount--,1)
+			F.Intrinsic.Control.If(V.DataTable.dtTarget(V.Local.i2).Checklist!FieldVal,=,True)	
+				F.Intrinsic.String.Build("select top 1 SHIP_SEQ from OE_MULTI_SHIP WHERE CUSTOMER = '{0}' order by SHIP_SEQ desc",V.DataTable.dtTarget(V.Local.i2).Customer!FieldValTrim,V.Local.sSql)
+				F.ODBC.Connection!conx.ExecuteAndReturn(V.Local.sSql,V.Local.iID)
+				F.Intrinsic.Math.Add(V.Local.iID,1,V.Local.iID)
+				V.Local.sID.Set(V.Local.iID)
+				F.Intrinsic.String.LPad(V.Local.sID,"0",6,V.Local.sID)
+				
+				F.Intrinsic.Control.If(V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_IN_PRC_FLG!FieldVal,=,False)
+					V.Local.iFlag.Set(0)
+				F.Intrinsic.Control.Else
+					V.Local.iFlag.Set(1)
+				F.Intrinsic.Control.EndIf
+				
+				F.Intrinsic.String.Build("insert into OE_MULTI_SHIP(CUSTOMER,FILL_CUST,SHIP_SEQ,SHIPPING_ID,CUSTOMER_NAME,FILL_NAME,SHIP_ADDRESS1,FILL_ADDR1,SHIP_ADDRESS2,FILL_ADDR2,SHIP_ADDRESS3,FILL_ADDR3,SHIP_ADDRESS4,FILL_ADDR4,SHIP_ADDRESS5,FILL_ADDR5,SHIP_CITY,FILL_CITY,SHIP_STATE,SHIP_ZIP,SHIP_COUNTRY,FILL_COUNTRY,SHIP_ATTENTION,FILL_ATTN,FLAG_INTL,SHIP_SALESPERSON,SHIP_VIA,SHIP_AREA,SHIP_BRANCH,SHIP_TAX_E_NO,SHIP_GL_ACCT,SHIP_TAX_STATE,SHIP_TAX_ZIP,SHIP_TAX_1,SHIP_TAX_2,SHIP_TAX_3,SHIP_TAX_4,SHIP_TAX_5,SHIP_TAX_6,SHIP_TAX_7,SHIP_TAX_8,SHIP_TAX_9,SHIP_TAX_10,SHIP_COMM_R_TYPE,SHIP_PRICE_CLASS,SHIP_GEO_CD,WHO_LAST_CHG,TRM_LAST_CHG,DATE_LAST_CHG,TIME_LAST_CHG,SHIP_FRT_ZONE,SHIP_DISCOUNT,SHIP_TELEPHONE,SHIP_FAX,FILLER2,SHIP_SIC,FILL_SIC,FILLER6,PRIMARY_GRP,SECONDARY_GRP,CARRIER_CD,THRD_PRTY_CUST,INTL_CITY_FLD,INTL_CNTRY_FLD,FILLER33,ORIG_LOCN_FLG,TAX_INDX_FLG,SHIP_LOCN,SHIP_TAX_ZONE_1,SHIP_TAX_ZONE_2,SHIP_TAX_ZONE_3,SHIP_TAX_ZONE_4,SHIP_TAX_ZONE_5,SHIP_TAX_ZONE_6,SHIP_TAX_ZONE_7,SHIP_TAX_ZONE_8,SHIP_TAX_ZONE_9,SHIP_TAX_ZONE_10,SHIP_TAX_IMPORT_FLG,SHIP_VAT_RULE_ID,SHIP_VAT_EXEMPT_TYPE,SHIP_TAX_IN_PRC_FLG,SHIP_SRVC_TYPE,SHIP_COUNTY,PRINT_COMM_INV,COMM_IV_INT_SHP,PART_DESCR_INV,PART_DESCR_ALT1,PART_DESCR_ALT2,PART_DESCR_TEXT,FILLER) values('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}','{14}','{15}','{16}','{17}','{18}','{19}','{20}','{21}','{22}','{23}','{24}','{25}','{26}','{27}','{28}','{29}','{30}','{31}','{32}','{33}','{34}','{35}','{36}','{37}','{38}','{39}','{40}','{41}','{42}','{43}','{44}','{45}','{46}','{47}','{48}','{49}','{50}',{51},'{52}','{53}','{54}','{55}','{56}','{57}','{58}','{59}','{60}','{61}','{62}','{63}','{64}','{65}','{66}','{67}','{68}','{69}','{70}','{71}','{72}','{73}','{74}','{75}','{76}','{77}',{78},{79},{80},{81},{82},'{83}',{84},{85},'{86}','{87}','{88}','{89}','{90}');",V.DataTable.dtTarget(V.Local.i2).Customer!FieldValTrim,"",V.Local.sID.Trim,"",V.DataTable.dtShipID(V.Local.i1).Customer_Name!FieldValTrim,"",V.DataTable.dtShipID(V.Local.i1).SHIP_ADDRESS1!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FILL_ADDR1!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_ADDRESS2!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FILL_ADDR2!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_ADDRESS3!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FILL_ADDR3!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_ADDRESS4!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FILL_ADDR4!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_ADDRESS5!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FILL_ADDR5!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_CITY!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FILL_CITY!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_STATE!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_ZIP!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_COUNTRY!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FILL_COUNTRY!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_ATTENTION!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FILL_ATTN!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FLAG_INTL!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_SALESPERSON!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_VIA!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_AREA!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_BRANCH!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_E_NO!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_GL_ACCT!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_STATE!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_ZIP!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_1!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_2!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_3!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_4!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_5!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_6!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_7!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_8!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_9!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_10!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_COMM_R_TYPE!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_PRICE_CLASS!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_GEO_CD!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).WHO_LAST_CHG!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).TRM_LAST_CHG!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).DATE_LAST_CHG!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).TIME_LAST_CHG!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_FRT_ZONE!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_DISCOUNT!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TELEPHONE!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_FAX!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FILLER2!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_SIC!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FILL_SIC!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FILLER6!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).PRIMARY_GRP!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SECONDARY_GRP!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).CARRIER_CD!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).THRD_PRTY_CUST!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).INTL_CITY_FLD!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).INTL_CNTRY_FLD!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FILLER33!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).ORIG_LOCN_FLG!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).TAX_INDX_FLG!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_LOCN!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_ZONE_1!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_ZONE_2!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_ZONE_3!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_ZONE_4!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_ZONE_5!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_ZONE_6!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_ZONE_7!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_ZONE_8!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_ZONE_9!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_ZONE_10!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_TAX_IMPORT_FLG!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_VAT_RULE_ID!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_VAT_EXEMPT_TYPE!FieldValTrim,V.Local.iFlag,V.DataTable.dtShipID(V.Local.i1).SHIP_SRVC_TYPE!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).SHIP_COUNTY!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).PRINT_COMM_INV!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).COMM_IV_INT_SHP!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).PART_DESCR_INV!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).PART_DESCR_ALT1!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).PART_DESCR_ALT2!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).PART_DESCR_TEXT!FieldValTrim,V.DataTable.dtShipID(V.Local.i1).FILLER!FieldValTrim,v.Local.sSQL)
+				F.ODBC.Connection!conx.Execute(v.Local.sSQL)
+			F.Intrinsic.Control.EndIf	
+		F.Intrinsic.Control.Next(V.Local.i2)	
+	F.Intrinsic.Control.Next(V.Local.i1)
+F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.UnBlockEvents
+
+F.Intrinsic.UI.Msgbox("Done!","Copy Ship ID (6004)")
+
+F.Intrinsic.Control.CallSub(Unload)
+Program.Sub.cmdCopy_Click.End
+
+Program.Sub.Comments.Start
+${$5$}$3.0.0.0$}$1
+${$6$}$dyunus$}$20200605164528059$}$xZ6SHi8g7O0Qsxe6AiO2NH3PnOKQRy0TSFd97t8/+5r15roV/+NSyTa7QloIh95NLR8dZ96UD/k=
+Program.Sub.Comments.End
